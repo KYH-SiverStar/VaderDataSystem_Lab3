@@ -1,10 +1,26 @@
 ﻿
 
 
+/* 
+Motivering för val av algoritm:
+
+Matris som datastruktur:
+2D-array är ett snabbt sätt att slå upp kombinationer av temperatur och luftfuktighet. 
+Alternativ som en hashtabell eller lista skulle ha introducerat mer komplexitet.
+
+Avrundning:
+Temperatur och luftfuktighet avrundas för att garantera att värden passar matrisens format.
+
+*/
+
+
+
 
 public class MoldIndexCalculator
 {
     // Beräknar mögelrisken baserat på temperatur och luftfuktighet
+    // En matris (mtab) används för att definiera möjliga risknivåer beroende på dessa två parametrar.
+
     public static int CalculateMoldRisk(float temperature, float humidity)
     {
         // Rundar temperaturen och fuktigheten till närmaste heltal
