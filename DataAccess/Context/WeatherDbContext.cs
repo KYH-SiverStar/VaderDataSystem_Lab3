@@ -3,7 +3,6 @@
 
 
 
-
 using Core.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,16 +10,21 @@ namespace DataAccess.Context
 {
     public class WeatherDbContext : DbContext
     {
-        // Anslutningssträng för databasen
         private const string ConnectionString = "Server=(localdb)\\MSSQLLocalDB;Database=VäderData;Trusted_Connection=True;";
 
-        // Konfigurera databaskopplingen och ange SQL Server som databas
+        public DbSet<WeatherData> WeatherDatas { get; set; } = null!; // Lägger till standardinitialisering
+
+        // Konfigurerar databasanslutningen och anger SQL Server som databas
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer(ConnectionString);
         }
 
-        // DbSet för att lagra väderdata i databasen
-        public DbSet<WeatherData> WeatherDatas { get; set; }
+        // Här kan du lägga till extra konfigurationer, som tabellnamn eller relationer
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            // Här kan du lägga till anpassade konfigurationer för modellerna
+        }
     }
 }

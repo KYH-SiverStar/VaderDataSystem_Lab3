@@ -10,51 +10,45 @@ namespace Core.Services
 {
     public class WeatherProcessor
     {
-        // Läs CSV-fil och konvertera data till en lista med WeatherData
+        // Metod för att läsa data från en CSV-fil och konvertera den till en lista av WeatherData-objekt
         public static List<WeatherData> ReadCsv(string filePath)
         {
             var data = new List<WeatherData>();
             var lines = File.ReadAllLines(filePath);
 
-            // Kontrollera om CSV-filen har tillräckligt många rader
             if (lines.Length < 2)
                 throw new Exception("CSV-filen är tom eller saknar data.");
 
-            foreach (var line in lines.Skip(1)) // Hoppa över header-raden
+            foreach (var line in lines.Skip(1)) // Hoppa över rubriken
             {
                 var fields = line.Split(',');
 
-                // Kontrollera om antalet fält är förväntat
                 if (fields.Length != 4)
                 {
                     Console.WriteLine($"Ogiltig rad ignorerad: {line}");
                     continue;
                 }
 
-                // Försök att konvertera datum
                 if (!DateTime.TryParse(fields[0], out var date))
                 {
                     Console.WriteLine($"Konvertering av datum: {fields[0]}");
                     continue;
                 }
 
-                // Försök att konvertera temperatur
                 if (!float.TryParse(fields[1], NumberStyles.Float, CultureInfo.InvariantCulture, out var temperature))
                 {
                     Console.WriteLine($"Konvertering av temperatur: {fields[1]}");
                     continue;
                 }
 
-                // Försök att konvertera luftfuktighet
                 if (!float.TryParse(fields[2], NumberStyles.Float, CultureInfo.InvariantCulture, out var humidity))
                 {
                     Console.WriteLine($"Konvertering av luftfuktighet: {fields[2]}");
                     continue;
                 }
 
-                var location = fields[3]; // 'Ute' eller 'Inne'
+                var location = fields[3];
 
-                // Lägg till den bearbetade väderdatan i listan
                 data.Add(new WeatherData
                 {
                     Date = date,
@@ -67,10 +61,40 @@ namespace Core.Services
             return data;
         }
 
-        // Gruppera väderdata efter plats (t.ex. 'Ute' eller 'Inne')
-        public static IEnumerable<IGrouping<string, WeatherData>> GroupByLocation(IEnumerable<WeatherData> weatherData)
+        // Aggregering av data för att beräkna medeltemperatur och medelhygien för ett specifikt datum
+        public static (float avgTemp, float avgHumidity) CalculateDailyAverages(List<WeatherData> weatherData, DateTime targetDate)
         {
-            return weatherData.GroupBy(w => w.Location);
+            var dailyData = weatherData.Where(w => w.Date.Date == targetDate.Date).ToList();
+
+            // Kontrollera om det finns data för det valda datumet
+            if (!dailyData.Any())
+            {
+                Console.WriteLine("Inga data hittades för det valda datumet.");
+                return (0f, 0f); // Eller kasta ett anpassat undantag om det behövs
+            }
+
+            var avgTemp = dailyData.Average(w => w.Temperature);
+            var avgHumidity = dailyData.Average(w => w.Humidity);
+
+            return (avgTemp, avgHumidity);
+        }
+
+        // Sortering av väderdata efter temperatur (från varmaste till kallaste)
+        public static List<WeatherData> SortByTemperature(List<WeatherData> weatherData)
+        {
+            return weatherData.OrderByDescending(w => w.Temperature).ToList();
+        }
+
+        // Sortering av väderdata efter luftfuktighet (från torraste till fuktigaste)
+        public static List<WeatherData> SortByHumidity(List<WeatherData> weatherData)
+        {
+            return weatherData.OrderByDescending(w => w.Humidity).ToList();
+        }
+
+        // Sortering av väderdata efter mögelrisksnivå (från lägre till högre risk)
+        public static List<WeatherData> SortByMoldRisk(List<WeatherData> weatherData)
+        {
+            return weatherData.OrderBy(w => MoldIndexCalculator.CalculateMoldRisk(w.Temperature, w.Humidity)).ToList();
         }
     }
 }

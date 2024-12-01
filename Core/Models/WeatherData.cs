@@ -7,19 +7,13 @@ namespace Core.Models
 {
     public class WeatherData
     {
-        // Unikt ID för väderdata
-        public int Id { get; set; }
+        public int Id { get; set; } // Unik identifierare för väderdata
+        public DateTime Date { get; set; } // Datum för väderrapporten
+        public float Temperature { get; set; } // Temperatur i grader
+        public float Humidity { get; set; } // Luftfuktighet i procent
+        public string Location { get; set; } = string.Empty; // Plats, initialiserad med ett tomt värde (om nödvändigt)
 
-        // Datumet för väderdata
-        public DateTime Date { get; set; }
-
-        // Temperaturvärde i grader
-        public float Temperature { get; set; }
-
-        // Luftfuktighet i procent
-        public float Humidity { get; set; }
-
-        // Plats för väderdata, t.ex. Ute (Exterior) eller Inne (Interior)
-        public string Location { get; set; }
+        // För att säkerställa att Location är obligatorisk, kan vi använda modifieraren 'required' i C# 9.0 eller högre
+        // public required string Location { get; set; } 
     }
 }
